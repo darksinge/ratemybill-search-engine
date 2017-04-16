@@ -5,8 +5,8 @@ var bodyParser = require('body-parser');
 var lunrRoute = require('./routes/lunr');
 var tfidfRoute = require('./routes/tfidf');
 
-app.use(bodyParser.urlencoded({extended: false}));
-app.use(bodyParser.json({type: 'application/json'}));
+// app.use(bodyParser.urlencoded({extended: false}));
+// app.use(bodyParser.json({type: 'application/json'}));
 
 app.use('/search', lunrRoute);
 app.use('/tfidf', tfidfRoute);

@@ -11,7 +11,8 @@ var path = require('path');
 var fs = require('fs');
 var lunr = require('lunr');
 
-var documentsPath = path.join(__dirname, '../data/documents');
+// var documentsPath = path.join(__dirname, '../data/documents');
+var documentsPath = path.join(__dirname, '../data/testDocuments');
 var documents = [];
 var idx;
 
@@ -26,8 +27,8 @@ router.use(function(req, res, next) {
     return next();
 });
 
-router.use('/', function(req, res) {
-    var searchTerms = req.params.searchTerms;
+router.get('/', function(req, res) {
+    var searchTerms = req.query.searchTerms || req.params.searchTerms;
 
     if (!searchTerms) return res.status(401).json({
         error: 'searchTerms is undefined!'
