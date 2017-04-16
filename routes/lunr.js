@@ -11,8 +11,8 @@ var path = require('path');
 var fs = require('fs');
 var lunr = require('lunr');
 
-// var documentsPath = path.join(__dirname, '../data/documents');
-var documentsPath = path.join(__dirname, '../data/testDocuments');
+var documentsPath = process.env.NODE_ENV === 'production' ? path.join(__dirname, '../data/documents') : path.join(__dirname, '../data/testDocuments');
+
 var documents = [];
 var idx;
 
