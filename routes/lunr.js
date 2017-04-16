@@ -21,20 +21,13 @@ parseDocuments();
 
 router.use(function(req, res, next) {
     if (!idx) return res.status(503).json({
-        error: "server not ready"
+        error: "server processing data, please try again in a few minutes."
     });
     return next();
 });
 
-router.use('/:token', function(req, res) {
-    var token = req.params.token;
-    return res.json({
-        results: idx.search(token)
-    });
-});
-
-router.post('/', function(req, res) {
-    var searchTerms = req.body.searchTerms;
+router.use('/', function(req, res) {
+    var searchTerms = req.params.searchTerms;
 
     if (!searchTerms) return res.status(401).json({
         error: 'searchTerms is undefined!'
@@ -44,6 +37,13 @@ router.post('/', function(req, res) {
 
     return res.json({
         results: results
+    });
+});
+
+router.use('/:token', function(req, res) {
+    var token = req.params.token;
+    return res.json({
+        results: idx.search(token)
     });
 });
 
