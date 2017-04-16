@@ -36,7 +36,7 @@ router.get('/tfidf/:token', function(req, res) {
     var data = {};
     for (i in tfidf) {
         var temp = Number(tfidf[i][col]);
-        if (temp !== NaN && temp > 0) {
+        if (!isNaN(temp) && temp > 0) {
             data[tfidf[i][0]] = temp;
         }
     }
