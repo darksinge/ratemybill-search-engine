@@ -28,13 +28,13 @@ router.use(function(req, res, next) {
 });
 
 router.get('/', function(req, res) {
-    var searchTerms = req.query.searchTerms || req.params.searchTerms;
+    var q = req.query.q || req.params.q;
 
-    if (!searchTerms) return res.status(401).json({
+    if (!q) return res.status(401).json({
         error: 'searchTerms is undefined!'
     });
 
-    var results = idx.search(searchTerms);
+    var results = idx.search(q);
 
     return res.json({
         results: results
