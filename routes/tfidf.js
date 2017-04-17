@@ -10,7 +10,6 @@ var fs = require('fs');
 var parse = require('csv-parse');
 var path = require('path');
 
-// var inputFilePath = path.join(__dirname, './dense_matrix.csv');
 var inputFilePath = path.join(__dirname, '../data/test_data.csv');
 var headers;
 var tfidf = [];
