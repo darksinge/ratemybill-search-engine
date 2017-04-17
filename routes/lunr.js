@@ -9,6 +9,7 @@ var express = require('express');
 var router = express.Router();
 var path = require('path');
 var fs = require('fs');
+var readline = require('readline');
 var lunr = require('lunr');
 var clc = require('cli-color');
 var indexer = require(path.join(__dirname, '../indexer/index'));
@@ -70,8 +71,8 @@ function buildIndex() {
     proc.stdout.on('data', function(data) {
         data = data.toString('utf8');
         if (data.includes('%')) {
-            process.stdout.clearLine();
-            process.stdout.cursorTo(0);
+            readline.clearLine(process.stdout, 0);
+            readline.cursorTo(process.stdout, 0, null);
             process.stdout.write(msgFormat('progress: '));
             process.stdout.write(msgFormat(data));
         } else {
