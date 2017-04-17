@@ -17,15 +17,25 @@ process.argv.forEach(function(val, index, array) {
 
 if (!fs.existsSync(documentsPath)) throw new Error('Documents path not found!');
 
-fs.readdir(documentsPath, function(err, files) {
+fs.readdir(documentsPath, function(err, folders) {
     if (err) throw err;
-    
-    indexStartTime = Date.now();
-    
+    var files = [];
+    for (var i = 0; i < folders.length; i++) {
+        var dirname = documentsPath + '/' + folders[i];
+        process.stdout.write('\tin ' + dirname + '...');
+        var f = fs.readdirSync(dirname);
+        for (var n = 0; n < f.length; n++) {
+            f[n] = dirname + '/' + f[n];
+        }
+        files = files.concat(f);
+    }
+    readDir(files);
+});
+
+function readDir(files) {
     var documents = [];
-    
     files.forEach(function(filePath) {
-        fs.readFile(documentsPath + '/' + filePath, 'utf8', function(err, data) {
+        fs.readFile(filePath, 'utf8', function(err, data) {
             if (err) console.error(err.message);
             
             documents.push({
@@ -38,9 +48,15 @@ fs.readdir(documentsPath, function(err, files) {
             }
         });
     });
-});
+    
+    if (files.length === 0) {
+        process.stdout.write('\n0 files were read into indexer!');
+    }
+    
+}
 
 function readDirCompletionHandler(documents) {
+    indexStartTime = Date.now();
     var idx = lunr(function() {
         this.ref('name');
         this.field('body');
