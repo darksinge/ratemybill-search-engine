@@ -71,10 +71,14 @@ function buildIndex() {
     proc.stdout.on('data', function(data) {
         data = data.toString('utf8');
         if (data.includes('%')) {
-            readline.clearLine(process.stdout, 0);
-            readline.cursorTo(process.stdout, 0, null);
-            process.stdout.write(msgFormat('progress: '));
-            process.stdout.write(msgFormat(data));
+            if (process.env.NODE_ENV === 'development') {
+                readline.clearLine(process.stdout, 0);
+                readline.cursorTo(process.stdout, 0, null);
+                process.stdout.write(msgFormat('progress: '));
+                process.stdout.write(msgFormat(data));
+            } else {
+                console.log(data);
+            }
         } else {
             console.log(msgFormat(data));
         }
