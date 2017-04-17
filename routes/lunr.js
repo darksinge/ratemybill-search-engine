@@ -10,18 +10,14 @@ var router = express.Router();
 var path = require('path');
 var fs = require('fs');
 var lunr = require('lunr');
+var indexer = require(path.join(__dirname, '../indexer/index'));
 
-var documentsPath = process.env.NODE_ENV === 'production' ? path.join(__dirname, '../data/documents') : path.join(__dirname, '../data/testDocuments');
-
-var documents = [];
+// var documents = [];
 var idx;
-
-var indexStartTime = Date.now();
-
-parseDocuments();
+var indexDidLoad = false;
 
 router.use(function(req, res, next) {
-    if (!idx) return res.status(503).json({
+    if (!indexDidLoad) return res.status(503).json({
         error: "server processing data, please try again in a few minutes."
     });
     return next();
@@ -50,36 +46,27 @@ router.use('/:token', function(req, res) {
 
 module.exports = router;
 
-function parseDocuments() {
-    console.log('parsing documents in ' + documentsPath + '...');
-    fs.readdir(documentsPath, (err, files) => {
-        if (err) return console.error(err.message);
-        
-        files.forEach(filePath => {
-            fs.readFile(documentsPath + '/' + filePath, 'utf8', (err, data) => {
-                if (err) console.error(err.message);
+buildIndex();
 
-                documents.push({
-                    name: filePath,
-                    text: data
-                });
-
-                if (documents.length >= files.length) {
-                    parseCompletionHandler();
-                }
-            });
-        });
+function buildIndex() {
+    
+    var indexFilePath = path.join(__dirname, '../indexer/prebuild.json');
+    if (fs.existsSync(indexFilePath)) {
+        idx = indexer.loadIndex(indexFilePath);
+        indexDidLoad = true;
+    }
+    
+    var documentsPath = process.env.NODE_ENV === 'production' ? path.join(__dirname, '../data/documents') : path.join(__dirname, '../data/testDocuments');
+    var buildFilePath = path.join(__dirname, '../indexer/buildIndex.js');
+    
+    const exec = require('child_process').exec;
+    exec('node ' + buildFilePath + ' -d ' + documentsPath, function(err, stdout, stderr) {
+        if (err) {
+            console.error('stderr: ', stderr);
+        }
+        console.log('stdout: ', stdout);
     });
+    
 }
 
-function parseCompletionHandler() {
-    console.log('indexing ' + documents.length + ' documents...');
-    idx = lunr(function() {
-        this.ref('name');
-        this.field('text');
-        documents.forEach(doc => {
-            this.add(doc);
-        }, this);
-    });
-    console.log('indexing completed in ' + ((Date.now() - indexStartTime) / 1000) + 's');
-}
+
