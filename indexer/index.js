@@ -7,7 +7,7 @@ function loadIndex(fin) {
     try {
         var data = fs.readFileSync(fin, 'utf8');
         var idx = lunr.Index.load(JSON.parse(data));
-        console.log('done! Loaded index from ' + fin);
+        console.log('Done! Loaded index from ' + fin);
         return idx;
         
     } catch (e) {

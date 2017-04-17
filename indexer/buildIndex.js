@@ -6,13 +6,21 @@
 var fs = require('fs');
 var path = require('path');
 var lunr = require('lunr');
+var timeformatter = require('./timeformatter');
 
-var documentsPath = process.stdin;
-var indexStartTime = Date.now();
+var indexStartTime;
+var documentsPath = '';
+
+process.argv.forEach(function(val, index, array) {
+   if (val === '-d') documentsPath = array[index+1];
+});
+
+if (!fs.existsSync(documentsPath)) throw new Error('Documents path not found!');
 
 fs.readdir(documentsPath, function(err, files) {
-    
     if (err) throw err;
+    
+    indexStartTime = Date.now();
     
     var documents = [];
     
@@ -37,21 +45,21 @@ function readDirCompletionHandler(documents) {
         this.ref('name');
         this.field('body');
         
-        documents.forEach(function(doc) {
+        documents.forEach(function(doc, index, array) {
+            process.stdout.write(Number((index/array.length)*100).toFixed(2) + '%');
             this.add(doc);
         }, this);
         
     });
     
-    console.log('indexing completed in ' + ((Date.now() - indexStartTime) / 1000) + 's');
     buildIndex(idx, 'prebuild.json');
 }
 
 function buildIndex(data, fout) {
-    console.log('Writing index to disk...');
-    var index = JSON.string(data);
-    fs.writeFile(path.join(__dirname, fout), index, function(e) {
+    var index = JSON.stringify(data);
+    fout = path.join(__dirname, fout);
+    fs.writeFile(fout, index, function(e) {
         if (e) return console.error(e.message);
-        console.log('Index build complete, saved to ' + fout);
+        process.stdout.write('\nIndexing complete in ' + timeformatter((Date.now()-indexStartTime) / 1000));
     });
 }

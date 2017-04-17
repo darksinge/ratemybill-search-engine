@@ -10,6 +10,7 @@ var router = express.Router();
 var path = require('path');
 var fs = require('fs');
 var lunr = require('lunr');
+var clc = require('cli-color');
 var indexer = require(path.join(__dirname, '../indexer/index'));
 
 // var documents = [];
@@ -45,8 +46,7 @@ router.use('/:token', function(req, res) {
 });
 
 module.exports = router;
-
-buildIndex();
+module.exports.buildIndex = buildIndex;
 
 function buildIndex() {
     
@@ -59,14 +59,23 @@ function buildIndex() {
     var documentsPath = process.env.NODE_ENV === 'production' ? path.join(__dirname, '../data/documents') : path.join(__dirname, '../data/testDocuments');
     var buildFilePath = path.join(__dirname, '../indexer/buildIndex.js');
     
-    const exec = require('child_process').exec;
-    exec('node ' + buildFilePath + ' -d ' + documentsPath, function(err, stdout, stderr) {
-        if (err) {
-            console.error('stderr: ', stderr);
-        }
-        console.log('stdout: ', stdout);
-    });
+    var msgFormat = clc.xterm(40);
     
+    var args = ['-d', documentsPath]
+    
+    console.log(msgFormat.bold('**** Rebuilding index ****'));
+    const spawn = require('child_process').spawn;
+    const proc = spawn('node ' + buildFilePath, args, {shell: true});
+    
+    proc.stdout.on('data', function(data) {
+        data = data.toString('utf8');
+        if (data.includes('%')) {
+            process.stdout.clearLine();
+            process.stdout.cursorTo(0);
+            process.stdout.write(msgFormat('progress: '));
+            process.stdout.write(msgFormat(data));
+        } else {
+            console.log(msgFormat(data));
+        }
+    });
 }
-
-
