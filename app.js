@@ -6,7 +6,7 @@ var clc = require('cli-color');
 var lunrRoute = require('./routes/lunr');
 // var tfidfRoute = require('./routes/tfidf');
 
-const PORT = 8082;
+const PORT = 8081;
 
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json({type: 'application/json'}));
