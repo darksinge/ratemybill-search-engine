@@ -63,7 +63,7 @@ function buildIndex() {
     
     var args = ['-d', documentsPath]
     
-    console.log(msgFormat.bold('**** Rebuilding index ****'));
+    console.log(msgFormat.bold('\n**** Rebuilding index ****'));
     const spawn = require('child_process').spawn;
     const proc = spawn('node ' + buildFilePath, args, {shell: true});
     
