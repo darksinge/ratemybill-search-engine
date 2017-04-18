@@ -6,7 +6,8 @@ function loadIndex(fin) {
     
     try {
         var data = fs.readFileSync(fin, 'utf8');
-        var idx = lunr.Index.load(JSON.parse(data));
+        var serialized = JSON.parse(data);
+        var idx = lunr.Index.load(serialized);
         console.log('Done! Loaded index from ' + fin);
         return idx;
         

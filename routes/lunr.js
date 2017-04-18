@@ -12,7 +12,7 @@ var fs = require('fs');
 var readline = require('readline');
 var lunr = require('elasticlunr');
 var clc = require('cli-color');
-var indexer = require(path.join(__dirname, '../indexer/index'));
+var indexer = require(path.join(__dirname, '../indexer/indexLoader'));
 
 var index;
 var indexDidLoad = false;
@@ -50,11 +50,11 @@ module.exports.buildIndex = buildIndex;
 
 function buildIndex() {
     
-    // var indexFilePath = path.join(__dirname, '../indexer/prebuild.json');
-    // if (fs.existsSync(indexFilePath)) {
-    //     index = indexer.loadIndex(indexFilePath);
-    //     indexDidLoad = true;
-    // }
+    var indexFilePath = path.join(__dirname, '../indexer/prebuild.json');
+    if (fs.existsSync(indexFilePath)) {
+        index = indexer.loadIndex(indexFilePath);
+        indexDidLoad = true;
+    }
     
     var documentsPath = process.env.NODE_ENV === 'production' ? path.join(__dirname, '../data/documents') : path.join(__dirname, '../data/testDocuments');
     var buildFilePath = path.join(__dirname, '../indexer/buildIndex.js');
@@ -75,7 +75,7 @@ function buildIndex() {
             process.stdout.write(msgFormat('progress: '));
             process.stdout.write(msgFormat(data));
         } else {
-            console.log(msgFormat(data));
+            process.stdout.write(msgFormat(data));
         }
     });
 }

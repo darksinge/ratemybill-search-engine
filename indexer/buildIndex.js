@@ -75,11 +75,20 @@ function buildIndex(files) {
 }
 
 function dump(index, outfileName) {
-    process.stdout.write("\nWriting index to disk");
-    
     var fout = path.join(__dirname, outfileName);
-    
-    fs.truncateSync(fout, 0);
-    fs.writeFileSync(fout, JSON.stringify(index));
-    process.stdout.write('Done!');
+    try {
+        process.stdout.write("\nSerializing index");
+        var serializedIndex = index.toJSON();
+        process.stdout.write("\nWriting index to disk");
+        fs.truncateSync(fout, 0);
+        fs.writeFile(fout, serializedIndex, function(err) {
+            if (err) {
+                process.stdout.write('\nERROR: ' + err);
+            } else {
+                process.stdout.write('\nDone!');
+            }
+        });
+    } catch (e) {
+        process.stdout.write('\nERROR: ' + e);
+    }
 }
