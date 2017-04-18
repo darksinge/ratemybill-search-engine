@@ -79,15 +79,17 @@ function dump(index, outfileName) {
     try {
         process.stdout.write("\nSerializing index");
         var serializedIndex = index.toJSON();
-        process.stdout.write("\nWriting index to disk");
-        fs.truncateSync(fout, 0);
-        fs.writeFile(fout, serializedIndex, function(err) {
-            if (err) {
-                process.stdout.write('\nERROR: ' + err);
-            } else {
-                process.stdout.write('\nDone!');
-            }
-        });
+        process.stdout.write("\nWriting index to disk...");
+
+        if (fs.existsSync(fout)) {
+            fs.truncateSync(fout, 0);
+        }
+
+        var json = JSON.stringify(serializedIndex);
+
+        fs.writeFileSync(fout, json, 'utf8');
+
+        process.stdout.write(' Done!');
     } catch (e) {
         process.stdout.write('\nERROR: ' + e);
     }

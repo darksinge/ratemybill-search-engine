@@ -48,22 +48,27 @@ router.use('/:token', function(req, res) {
 module.exports = router;
 module.exports.buildIndex = buildIndex;
 
+var msgFormat = clc.xterm(40);
 function buildIndex() {
     
     var indexFilePath = path.join(__dirname, '../indexer/prebuild.json');
+
     if (fs.existsSync(indexFilePath)) {
         index = indexer.loadIndex(indexFilePath);
         indexDidLoad = true;
+        console.log(msgFormat.bold('\n**** Rebuilding index ****'));
+    } else {
+        console.log(msgFormat.bold('\n**** Building index ****'));
     }
     
     var documentsPath = process.env.NODE_ENV === 'production' ? path.join(__dirname, '../data/documents') : path.join(__dirname, '../data/testDocuments');
     var buildFilePath = path.join(__dirname, '../indexer/buildIndex.js');
     
-    var msgFormat = clc.xterm(40);
+
     
     var args = ['-d', documentsPath];
     
-    console.log(msgFormat.bold('\n**** Rebuilding index ****'));
+
     const spawn = require('child_process').spawn;
     const proc = spawn('node ' + buildFilePath, args, {shell: true});
     
