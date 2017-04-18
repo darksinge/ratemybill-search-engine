@@ -1,4 +1,4 @@
-var lunr = require('lunr');
+var lunr = require('elasticlunr');
 var fs = require('fs');
 
 function loadIndex(fin) {

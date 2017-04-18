@@ -50,11 +50,11 @@ module.exports.buildIndex = buildIndex;
 
 function buildIndex() {
     
-    var indexFilePath = path.join(__dirname, '../indexer/prebuild.json');
-    if (fs.existsSync(indexFilePath)) {
-        index = indexer.loadIndex(indexFilePath);
-        indexDidLoad = true;
-    }
+    // var indexFilePath = path.join(__dirname, '../indexer/prebuild.json');
+    // if (fs.existsSync(indexFilePath)) {
+    //     index = indexer.loadIndex(indexFilePath);
+    //     indexDidLoad = true;
+    // }
     
     var documentsPath = process.env.NODE_ENV === 'production' ? path.join(__dirname, '../data/documents') : path.join(__dirname, '../data/testDocuments');
     var buildFilePath = path.join(__dirname, '../indexer/buildIndex.js');
