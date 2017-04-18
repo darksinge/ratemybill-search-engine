@@ -82,5 +82,4 @@ function dump(index, outfileName) {
     fs.truncateSync(fout, 0);
     fs.writeFileSync(fout, JSON.stringify(index));
     process.stdout.write('Done!');
-    
 }
