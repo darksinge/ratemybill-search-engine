@@ -6,10 +6,10 @@
   "dependencies": {
     "body-parser": "^1.17.1",
     "csv-parse": "^1.2.0",
+    "elasticlunr": "^0.9.5",
     "eslint": "^3.19.0",
     "eslint-config-google": "^0.7.1",
-    "express": "^4.15.2",
-    "lunr": "^2.0.1"
+    "express": "^4.15.2"
   },
   "devDependencies": {
     "cli-color": "^1.2.0",

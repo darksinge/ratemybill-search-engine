@@ -5,7 +5,7 @@
  */
 var fs = require('fs');
 var path = require('path');
-var lunr = require('lunr');
+var lunr = require('elasticlunr');
 var timeformatter = require('./timeformatter');
 
 var indexStartTime;
@@ -22,60 +22,65 @@ fs.readdir(documentsPath, function(err, folders) {
     var files = [];
     for (var i = 0; i < folders.length; i++) {
         var dirname = documentsPath + '/' + folders[i];
-        process.stdout.write('\tin ' + dirname + '...');
         var f = fs.readdirSync(dirname);
         for (var n = 0; n < f.length; n++) {
-            f[n] = dirname + '/' + f[n];
+            f[n] = {
+                pathName: dirname + '/' + f[n],
+                fileName: f[n]
+            };
         }
         files = files.concat(f);
     }
-    readDir(files);
+    buildIndex(files);
 });
 
-function readDir(files) {
-    var documents = [];
-    files.forEach(function(filePath) {
-        fs.readFile(filePath, 'utf8', function(err, data) {
-            if (err) console.error(err.message);
-            
-            documents.push({
-                name: filePath,
-                body: data
-            });
-            
-            if (documents.length >= files.length) {
-                readDirCompletionHandler(documents);
-            }
-        });
+function buildIndex(files) {
+    process.stdout.write("processing files...");
+    
+    var index = lunr(function() {
+        this.setRef('id');
+        this.addField('body');
+        this.saveDocument(false);
     });
     
-    if (files.length === 0) {
-        process.stdout.write('\n0 files were read into indexer!');
-    }
-    
-}
-
-function readDirCompletionHandler(documents) {
     indexStartTime = Date.now();
-    var idx = lunr(function() {
-        this.ref('name');
-        this.field('body');
-        
-        documents.forEach(function(doc, index, array) {
-            process.stdout.write(Number((index/array.length)*100).toFixed(2) + '%');
-            this.add(doc);
-        }, this);
-        
-    });
     
-    buildIndex(idx, 'prebuild.json');
+    var count = files.length;
+    
+    function nextFile(current) {
+        if (!current) current = 0;
+        var document = files[current]['pathName'];
+        try {
+            var data = fs.readFileSync(document, 'utf8');
+        
+            var entry = {
+                id: files[current]['fileName'],
+                body: data
+            };
+    
+            index.addDoc(entry);
+        } catch(e) {
+            process.stdout.write('Error: ' + e);
+        }
+        if (current < files.length - 1) {
+            if (current % 50 === 0) process.stdout.write(Number((current / count) * 100).toFixed(2) + '%');
+            setImmediate(nextFile(++current));
+        } else {
+            process.stdout.write('100%');
+            process.stdout.write('\nIndexing complete in ' + timeformatter((Date.now()-indexStartTime) / 1000));
+            dump(index, 'prebuild.json');
+        }
+    }
+    nextFile();
 }
 
-function buildIndex(data, fout) {
-    var index = JSON.stringify(data);
-    fout = path.join(__dirname, fout);
-    fs.writeFile(fout, index, function(e) {
-        if (e) return console.error(e.message);
-        process.stdout.write('\nIndexing complete in ' + timeformatter((Date.now()-indexStartTime) / 1000));
-    });
+function dump(index, outfileName) {
+    process.stdout.write("\nWriting index to disk");
+    
+    var fout = path.join(__dirname, outfileName);
+    
+    fs.truncateSync(fout, 0);
+    fs.writeFileSync(fout, JSON.stringify(index));
+    process.stdout.write('Done!');
+    
 }

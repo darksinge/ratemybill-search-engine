@@ -10,12 +10,12 @@ var router = express.Router();
 var path = require('path');
 var fs = require('fs');
 var readline = require('readline');
-var lunr = require('lunr');
+var lunr = require('elasticlunr');
 var clc = require('cli-color');
 var indexer = require(path.join(__dirname, '../indexer/index'));
 
 // var documents = [];
-var idx;
+var index;
 var indexDidLoad = false;
 
 router.use(function(req, res, next) {
@@ -53,7 +53,7 @@ function buildIndex() {
     
     var indexFilePath = path.join(__dirname, '../indexer/prebuild.json');
     if (fs.existsSync(indexFilePath)) {
-        idx = indexer.loadIndex(indexFilePath);
+        index = indexer.loadIndex(indexFilePath);
         indexDidLoad = true;
     }
     
@@ -71,14 +71,10 @@ function buildIndex() {
     proc.stdout.on('data', function(data) {
         data = data.toString('utf8');
         if (data.includes('%')) {
-            if (process.env.NODE_ENV === 'development') {
-                readline.clearLine(process.stdout, 0);
-                readline.cursorTo(process.stdout, 0, null);
-                process.stdout.write(msgFormat('progress: '));
-                process.stdout.write(msgFormat(data));
-            } else {
-                console.log(data);
-            }
+            readline.clearLine(process.stdout, 0);
+            readline.cursorTo(process.stdout, 0, null);
+            process.stdout.write(msgFormat('progress: '));
+            process.stdout.write(msgFormat(data));
         } else {
             console.log(msgFormat(data));
         }
